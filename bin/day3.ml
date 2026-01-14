@@ -1,7 +1,7 @@
 open Base
 open Hardcaml
 open Signal
-open Hardcaml_waveterm
+(* open Hardcaml_waveterm *)
 
 let line_length = 100
 let depth = 12
@@ -113,7 +113,7 @@ let circuit =
   in
 
 
-  (* Outputs *)
+  (* Outputs: Most of them are for debugging *)
   let outputs =
     output "top" stack.top
     :: List.mapi stack.mem ~f:(fun i m ->
@@ -155,7 +155,7 @@ let with_file_chars filename f =
 let () =
 
   let sim = Cyclesim.create circuit in
-  let waves, sim = Waveform.create sim in
+  (* let waves, sim = Waveform.create sim in *)
 
   let data_in = Cyclesim.in_port sim "data_in" in
   let input_not_done = Cyclesim.in_port sim "input_not_done" in
@@ -180,7 +180,7 @@ let () =
     Cyclesim.cycle sim;
   done;
 
-  Stdlib.Printf.printf "ans = %d\n" (Bits.to_int !ans);
+  Stdlib.Printf.printf "%d\n" (Bits.to_int !ans);
 
 
-  Hardcaml_waveterm_interactive.run waves
+  (* Hardcaml_waveterm_interactive.run waves *)
