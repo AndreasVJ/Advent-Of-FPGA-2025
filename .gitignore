@@ -1,0 +1,9 @@
+/_build/
+/.opam/
+*.opam.locked
+
+# Editor / OS junk
+.DS_Store
+*.swp
+*.swo
+*~

@@ -1,0 +1,29 @@
+(test
+ (name test_stack)
+ (libraries
+   hardcaml
+   hardcaml_waveterm
+   hardcaml_waveterm.interactive
+   aofpga
+   )
+ )
+
+(test
+ (name test_count_trailing_ones)
+ (libraries
+   hardcaml
+   hardcaml_waveterm
+   hardcaml_waveterm.interactive
+   aofpga
+   )
+ )
+
+(test
+ (name test_bcd_to_binary)
+ (libraries
+   hardcaml
+   hardcaml_waveterm
+   hardcaml_waveterm.interactive
+   aofpga
+   )
+ )

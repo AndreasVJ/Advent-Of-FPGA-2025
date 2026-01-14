@@ -1,0 +1,4 @@
+(executable
+ (public_name aofpga)
+ (name day3)
+ (libraries aofpga base hardcaml hardcaml_waveterm hardcaml_waveterm.interactive))
