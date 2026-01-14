@@ -1,11 +1,10 @@
 # Advent Of FPGA 2025 (Day 3)
 
-This repository contains my solution for [Advent Of FPGA 2025](https://blog.janestreet.com/advent-of-fpga-challenge-2025/). I choose to solve [day 3](https://adventofcode.com/2025/day/3), and wrote my solution in Ocaml with the Hardcaml library.
-
+This repository contains my solution for [Advent Of FPGA 2025](https://blog.janestreet.com/advent-of-fpga-challenge-2025/). I chose to solve [day 3](https://adventofcode.com/2025/day/3) and implemented my solution in OCaml using the Hardcaml library
 
 ## Requirements
 
-You need the following tools installed:
+The following tools are required:
 
 - `opam` (≥ 2.5)
 - `dune` (installed with `opam install dune`)
@@ -79,7 +78,7 @@ A more hardware friendly python implementation of this algorithm can be found in
 
 ### Single-Cycle Stack Pointer Pruning
 
-In the software reference implementation, the stack is pruned using a while loop that repeatedly pops elements until the greedy condition is satisfied. This form of control flow does not map well to hardware as it would have to stall the pipeline.
+In the software reference implementation, the stack is pruned using a while loop that repeatedly pops elements until the greedy condition is satisfied. This form of control flow does not map well to hardware, as it would require variable-length iteration and could stall the pipeline.
 
 Instead, the hardware design computes the new stack pointer in a single clock cycle, using combinational logic.
 
@@ -113,37 +112,30 @@ let trailing_ones =
   Aofpga.Count_trailing_ones.create (uresize valid_pop 16)
 ```
 
-The trailing_ones count subtracted from K = depth yields the lowest index that must be preserved, allowing the stack pointer to be updated without iterative popping.
+The trailing_ones count subtracted from K = depth yields the lowest index in the stack that should be popped, allowing the stack pointer to be updated directly without iterative popping.
 
 ### End-of-Line Detection and Pipeline Decoupling
 
-The end of an input line is detected when the remaining-input counter reaches zero:
+The end of an input line is detected when a remaining-input counter reaches zero:
 ```ml
 let end_of_line = (remaining ==:. 0) &: ~:(stack.empty)
 ```
 
 At this point:
 - The stack contains the final 12-digit result for the line
-- The stack pointer is reset for the next line
 - A conversion from BCD digits to binary is triggered
-
-This conversion does not stall input processing.
+- The stack pointer is reset for the next line
 
 ### Parallel BCD-to-Binary Conversion
 
-The selected digits are stored in BCD form. Converting a 12-digit BCD number to binary is implemented as a multi-cycle pipeline:
+The selected digits are stored in BCD form. Conversion to binary is performed by a multi-cycle sequential unit that processes one digit per clock cycle:
 ```ml
 let line_ans = Aofpga.Bcd_to_binary.create
   ~clock
   ~digits:stack.mem
   ~start:end_of_line
 ```
-
-- Conversion starts when end_of_line is asserted
-- One digit is processed per clock cycle
-- The conversion runs in parallel with processing of the next input line
-
-This allows the design to maintain a throughput of one input digit per cycle, even though BCD-to-binary conversion itself is sequential.
+This conversion does not stall input processing, which allows the design to maintain a throughput of one input digit per cycle, even though BCD-to-binary conversion itself is sequential.
 
 ### Accumulation of Results
 
@@ -159,3 +151,5 @@ let ans =
     )
 ```
 
+### Summary
+This design implements a greedy maximum-subsequence algorithm in hardware by computing stack pruning decisions in a single cycle using parallel comparisons. Multi-cycle BCD-to-binary conversion is decoupled from input processing, allowing continuous throughput of one digit per clock cycle while accumulating results across lines.
